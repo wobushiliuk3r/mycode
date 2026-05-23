@@ -534,7 +534,7 @@ async function bulkAdd() {
     } catch { fail++; }
   }
   document.getElementById('bulk-tokens').value = '';
-  toast(\`导入完成：\${ok} 成功\${fail > 0 ? '，' + fail + ' 失败' : ''}\`);
+  toast('导入完成：' + ok + ' 成功' + (fail > 0 ? '，' + fail + ' 失败' : ''));
   loadTokens();
 }
 
@@ -584,7 +584,7 @@ async function checkAllTokens() {
   // 改为串行检测，避免一次性并发几十个请求被上游 429 或 5xx 限流
   for (let i = 0; i < allTokens.length; i++) {
     const t = allTokens[i];
-    progress.textContent = `正在检测第 ${i + 1}/${allTokens.length} 个 Token...`;
+    progress.textContent = '正在检测第 ' + (i + 1) + '/' + allTokens.length + ' 个 Token...';
     try {
       const data = await api('POST', '/admin/check-token', { token: t.token });
       if (data.valid) {
@@ -593,12 +593,12 @@ async function checkAllTokens() {
         invalidCount++;
       }
     } catch (e) {
-      console.error(`Check failed for ${t.token}:`, e);
+      console.error('Check failed for ' + t.token + ':', e);
       // 如果后端接口完全崩溃（网络断了），跳过
     }
   }
 
-  toast(`检测完成: ${validCount} 有效, ${invalidCount} 失效`);
+  toast('检测完成: ' + validCount + ' 有效, ' + invalidCount + ' 失效');
   progress.textContent = '上次检测: ' + new Date().toLocaleString('zh-CN');
 
   // 重新加载并渲染列表
@@ -626,7 +626,7 @@ async function deleteInvalidTokens() {
     return toast('当前没有失效的 Token 需要清理');
   }
 
-  if (!confirm(`确定要彻底删除 ${invalidTokens.length} 个失效的 Token 吗？此操作不可恢复！`)) return;
+  if (!confirm('确定要彻底删除 ' + invalidTokens.length + ' 个失效的 Token 吗？此操作不可恢复！')) return;
 
   const btn = document.getElementById('btn-delete-invalid');
   btn.disabled = true;
@@ -644,7 +644,7 @@ async function deleteInvalidTokens() {
     }
   }
 
-  toast(`清理完成: 成功删除 ${ok} 个${fail > 0 ? `, 失败 ${fail} 个` : ''}`);
+  toast('清理完成: 成功删除 ' + ok + ' 个' + (fail > 0 ? ', 失败 ' + fail + ' 个' : ''));
   btn.disabled = false;
   btn.innerHTML = '&#128465; 清理所有失效 Token';
   loadTokens();
