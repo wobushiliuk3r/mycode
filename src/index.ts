@@ -219,24 +219,7 @@ export default {
 
     // Admin API - check tokens
     if (url.pathname === '/admin/check-tokens' && request.method === 'POST') {
-      if (!verifyAdmin(request, env)) return jsonResponse({ error: 'Unauthorized' }, 401);
-      if (!env.KV) return jsonResponse({ error: 'KV Namespace not configured' }, 500);
-
-      const rawBaseUrl = env.TARGET_BASE_URL || 'https://api.openai.com';
-      const tokens = await getTokens(env.KV);
-      const results = [];
-      for (const t of tokens) {
-        const check = await checkTokenValidity(t.token, rawBaseUrl);
-        const disabled = !check.valid;
-        if (check.valid) {
-          await updateTokenStatus(env.KV, t.token, 'valid');
-        } else {
-          await updateTokenStatus(env.KV, t.token, 'invalid', `auto-check: HTTP ${check.httpStatus}`);
-        }
-        results.push({ token: t.token, valid: check.valid, httpStatus: check.httpStatus, disabled });
-      }
-      const invalidCount = results.filter((r) => !r.valid).length;
-      return jsonResponse({ ok: true, total: results.length, valid: results.length - invalidCount, invalid: invalidCount, results });
+      return jsonResponse({ error: 'Endpoint deprecated in favor of sequential checking to avoid upstream rate limits.' }, 400);
     }
 
     // Admin API - check single token

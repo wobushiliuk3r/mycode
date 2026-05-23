@@ -576,16 +576,34 @@ async function checkAllTokens() {
   const progress = document.getElementById('check-progress');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinning">&#9889;</span> 检测中...';
-  progress.textContent = '正在发起对话测试，验证存活状态...';
-  try {
-    const data = await api('POST', '/admin/check-tokens');
-    toast('检测完成: ' + data.valid + ' 有效, ' + data.invalid + ' 失效');
-    progress.textContent = '上次检测: ' + new Date().toLocaleString('zh-CN');
-    loadTokens();
-  } catch (e) {
-    toast('检测失败: ' + e.message, false);
-    progress.textContent = '';
+  progress.textContent = '正在发起对话测试，为了防止触发并发限制，我们将按顺序逐个检测...';
+
+  let validCount = 0;
+  let invalidCount = 0;
+
+  // 改为串行检测，避免一次性并发几十个请求被上游 429 或 5xx 限流
+  for (let i = 0; i < allTokens.length; i++) {
+    const t = allTokens[i];
+    progress.textContent = `正在检测第 ${i + 1}/${allTokens.length} 个 Token...`;
+    try {
+      const data = await api('POST', '/admin/check-token', { token: t.token });
+      if (data.valid) {
+        validCount++;
+      } else {
+        invalidCount++;
+      }
+    } catch (e) {
+      console.error(`Check failed for ${t.token}:`, e);
+      // 如果后端接口完全崩溃（网络断了），跳过
+    }
   }
+
+  toast(`检测完成: ${validCount} 有效, ${invalidCount} 失效`);
+  progress.textContent = '上次检测: ' + new Date().toLocaleString('zh-CN');
+
+  // 重新加载并渲染列表
+  await loadTokens();
+
   btn.disabled = false;
   btn.innerHTML = '&#9889; 一键检测所有状态';
 }
