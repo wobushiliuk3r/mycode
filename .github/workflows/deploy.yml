@@ -28,11 +28,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          secrets: |
-            GATEWAY_KEY
-            UPSTREAM_KEYS
-            TARGET_BASE_URL
-        env:
-          GATEWAY_KEY: ${{ secrets.GATEWAY_KEY }}
-          UPSTREAM_KEYS: ${{ secrets.UPSTREAM_KEYS }}
-          TARGET_BASE_URL: ${{ secrets.TARGET_BASE_URL }}
+          command: deploy --var GATEWAY_KEY:"${{ secrets.GATEWAY_KEY }}" UPSTREAM_KEYS:"${{ secrets.UPSTREAM_KEYS }}" TARGET_BASE_URL:"${{ secrets.TARGET_BASE_URL }}"
+

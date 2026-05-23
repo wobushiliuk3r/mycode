@@ -49,9 +49,13 @@
 
 只要你将代码 push 到 `main` 分支，GitHub 就会自动调用 `wrangler` 进行部署。
 
-部署成功后：
-- **管理后台**：访问 `https://my-proxy-gateway.<你的子域名>.workers.dev/admin`。登录密码就是你设置的 `GATEWAY_KEY`。在里面尽情添加你的真实 Key 吧！
-- **API 端点**：将你的客户端 Base URL 设置为 `https://my-proxy-gateway.<你的子域名>.workers.dev` 即可。
+部署成功后，你可以在 Cloudflare Dashboard 的 Workers 页面看到你的服务。
+- **配置自定义域名（推荐）**：在 Worker 的设置页面 -> **触发器 (Triggers)** -> **自定义域 (Custom Domains)** 中，添加你自己绑定的域名（如 `api.yourdomain.com`）。
+- **默认子域名**：如果没有自定义域名，也可以直接使用 Cloudflare 免费分配的子域名，如 `https://my-proxy-gateway.<你的子域名>.workers.dev`。
+
+部署完成后：
+- **管理后台**：访问 `https://你的域名/admin`。登录密码就是你设置的 `GATEWAY_KEY`。在里面尽情添加你的真实 Key 吧！
+- **API 端点**：将你的客户端 Base URL 设置为 `https://你的域名` 即可。
 
 ---
 
