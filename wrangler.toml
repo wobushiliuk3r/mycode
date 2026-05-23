@@ -1,0 +1,11 @@
+name = "my-proxy-gateway"
+main = "src/index.ts"
+compatibility_date = "2024-05-23"
+
+# 使用 GitHub Actions 部署时，不需要在这里明文写环境变量。
+# 所有的敏感信息（如密码、API Keys）都在 GitHub Repository 的 Settings -> Secrets and variables -> Actions 里配置。
+# 这里留空或者不写 [vars] 即可，Wrangler 会自动把 GitHub Secrets 当作环境变量注入。
+
+[[kv_namespaces]]
+binding = "KV"
+id = "YOUR_KV_NAMESPACE_ID"
