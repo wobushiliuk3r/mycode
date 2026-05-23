@@ -1,0 +1,38 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set KV Namespace ID
+        run: sed -i "s/YOUR_KV_NAMESPACE_ID/${{ secrets.KV_NAMESPACE_ID }}/" wrangler.toml
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          secrets: |
+            GATEWAY_KEY
+            UPSTREAM_KEYS
+            TARGET_BASE_URL
+        env:
+          GATEWAY_KEY: ${{ secrets.GATEWAY_KEY }}
+          UPSTREAM_KEYS: ${{ secrets.UPSTREAM_KEYS }}
+          TARGET_BASE_URL: ${{ secrets.TARGET_BASE_URL }}
