@@ -4,7 +4,7 @@ export function getAdminHTML(baseUrl: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zo Gateway</title>
+  <title>API Proxy Gateway</title>
   <link rel="icon" type="image/png" href="/favicon.ico">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,26 +44,14 @@ export function getAdminHTML(baseUrl: string): string {
     .card h3 { font-size: 1rem; font-weight: 600; color: #1c1917; margin-bottom: 16px; }
 
     /* Stats */
-    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; width: 100%; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; width: 100%; }
     .stat-card { background: #fff; border: 1px solid #e7e5e4; border-radius: 12px; padding: 20px; }
     .stat-card .label { font-size: 0.8rem; color: #a8a29e; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
     .stat-card .value { font-size: 2rem; font-weight: 700; margin-top: 4px; }
     .stat-card .value.blue { color: #3b82f6; }
     .stat-card .value.green { color: #22c55e; }
     .stat-card .value.red { color: #ef4444; }
-    .stat-card .value.amber { color: #f59e0b; }
     .stat-card .value.purple { color: #8b5cf6; }
-
-    /* Model tags */
-    .model-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .model-tag { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; border: 1px solid #e7e5e4; background: #fafaf9; }
-    .model-tag .dot { width: 8px; height: 8px; border-radius: 50%; }
-    .dot-anthropic { background: #f97316; }
-    .dot-openai { background: #10b981; }
-    .dot-deepseek { background: #3b82f6; }
-    .dot-zai { background: #8b5cf6; }
-    .dot-minimax { background: #ec4899; }
-    .dot-google { background: #eab308; }
 
     /* Form */
     .input-group { margin-bottom: 14px; }
@@ -121,7 +109,7 @@ export function getAdminHTML(baseUrl: string): string {
     .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* Add form */
-    .add-grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    .add-grid { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: end; }
     .add-grid .input-group { margin-bottom: 0; }
 
     /* Info */
@@ -155,55 +143,50 @@ export function getAdminHTML(baseUrl: string): string {
 <!-- Login -->
 <div id="login-view">
   <div class="login-card">
-    <div class="logo">&#9889;</div>
-    <h1>Zo Gateway</h1>
-    <p class="sub">\u53f7\u6c60\u7ba1\u7406\u7cfb\u7edf</p>
+    <div class="logo">&#128640;</div>
+    <h1>API Proxy Gateway</h1>
+    <p class="sub">统一号池与限流管理</p>
     <div class="input-group">
       <label>Gateway Key</label>
-      <input type="password" id="login-key" placeholder="\u8f93\u5165\u7ba1\u7406\u5bc6\u94a5" autofocus>
+      <input type="password" id="login-key" placeholder="输入管理密钥" autofocus>
     </div>
-    <label class="remember"><input type="checkbox" id="remember-me" checked> \u8bb0\u4f4f\u767b\u5f55\u72b6\u6001</label>
-    <button class="btn btn-primary btn-block" onclick="login()">\u767b\u5f55</button>
+    <label class="remember"><input type="checkbox" id="remember-me" checked> 记住登录状态</label>
+    <button class="btn btn-primary btn-block" onclick="login()">登录</button>
   </div>
 </div>
 
 <!-- App -->
 <div id="app">
   <div class="sidebar">
-    <div class="sidebar-logo"><span class="icon">&#9889;</span> Zo Gateway</div>
+    <div class="sidebar-logo"><span class="icon">&#128640;</span> API Gateway</div>
     <nav class="sidebar-nav">
-      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#9632;</span> \u4eea\u8868\u76d8</div>
-      <div class="nav-item" data-page="tokens"><span class="nav-icon">&#9883;</span> \u53f7\u6c60\u7ba1\u7406</div>
-      <div class="nav-item" data-page="info"><span class="nav-icon">&#8635;</span> \u63a5\u5165\u4fe1\u606f</div>
+      <div class="nav-item active" data-page="dashboard"><span class="nav-icon">&#9632;</span> 仪表盘</div>
+      <div class="nav-item" data-page="tokens"><span class="nav-icon">&#9883;</span> 号池管理</div>
+      <div class="nav-item" data-page="info"><span class="nav-icon">&#8635;</span> 接入信息</div>
     </nav>
     <div class="sidebar-footer">
-      <button onclick="logout()">\u9000\u51fa\u767b\u5f55</button>
+      <button onclick="logout()">退出登录</button>
     </div>
   </div>
 
   <div class="main">
     <!-- Dashboard -->
     <div class="page active" id="page-dashboard">
-      <div class="page-title">\u4eea\u8868\u76d8</div>
+      <div class="page-title">仪表盘</div>
       <div class="stats">
-        <div class="stat-card"><div class="label">\u603b\u8ba1 Token</div><div class="value blue" id="s-total">0</div></div>
-        <div class="stat-card"><div class="label">\u53ef\u7528</div><div class="value green" id="s-available">0</div></div>
-        <div class="stat-card"><div class="label">\u5df2\u7981\u7528</div><div class="value red" id="s-disabled">0</div></div>
-        <div class="stat-card"><div class="label">\u5df2\u9a8c\u8bc1\u6709\u6548</div><div class="value green" id="s-valid">0</div></div>
-        <div class="stat-card"><div class="label">\u652f\u6301\u6a21\u578b</div><div class="value purple" id="s-models">11</div></div>
-      </div>
-      <div class="card">
-        <h3>\u652f\u6301\u7684\u6a21\u578b</h3>
-        <div class="model-tags" id="model-tags"></div>
+        <div class="stat-card"><div class="label">总计 Token</div><div class="value blue" id="s-total">0</div></div>
+        <div class="stat-card"><div class="label">可用 (含环境变量)</div><div class="value green" id="s-available">0</div></div>
+        <div class="stat-card"><div class="label">已禁用</div><div class="value red" id="s-disabled">0</div></div>
+        <div class="stat-card"><div class="label">已验证有效</div><div class="value green" id="s-valid">0</div></div>
       </div>
       <div class="card card-fill">
-        <h3>\u6700\u8fd1\u6dfb\u52a0\u7684\u8d26\u53f7</h3>
+        <h3>最近添加的 Token</h3>
         <div class="table-wrap" style="flex:1">
           <table>
-            <thead><tr><th>\u90ae\u7bb1</th><th>Space</th><th>\u6dfb\u52a0\u65f6\u95f4</th><th>\u72b6\u6001</th></tr></thead>
+            <thead><tr><th>名称/备注</th><th>添加时间</th><th>状态</th></tr></thead>
             <tbody id="recent-list"></tbody>
           </table>
-          <div id="recent-empty" class="empty-state hidden">\u6682\u65e0\u8d26\u53f7</div>
+          <div id="recent-empty" class="empty-state hidden">暂无账号</div>
         </div>
         <div id="recent-pagination" class="pagination"></div>
       </div>
@@ -211,39 +194,39 @@ export function getAdminHTML(baseUrl: string): string {
 
     <!-- Tokens -->
     <div class="page" id="page-tokens">
-      <div class="page-title">\u53f7\u6c60\u7ba1\u7406</div>
+      <div class="page-title">号池管理</div>
       <div class="card">
-        <h3>\u72b6\u6001\u68c0\u6d4b</h3>
+        <h3>连通性检测</h3>
+        <p style="font-size:0.85rem;color:#78716c;margin-bottom:12px">向配置的目标服务器发送 Google/gemini-3.1-pro-preview 模型的简单测试对话，验证 Key 是否真实存活可用。</p>
         <div class="check-actions">
-          <button class="btn btn-primary" id="btn-check-all" onclick="checkAllTokens()">\u26a1 \u4e00\u952e\u68c0\u6d4b\u72b6\u6001</button>
+          <button class="btn btn-primary" id="btn-check-all" onclick="checkAllTokens()">&#9889; 一键检测所有状态</button>
           <span id="check-progress" style="font-size:0.85rem;color:#78716c;align-self:center"></span>
         </div>
       </div>
       <div class="card">
-        <h3>\u6dfb\u52a0 Token</h3>
+        <h3>添加真实 API Key</h3>
         <div class="add-grid">
-          <div class="input-group"><label>\u90ae\u7bb1</label><input type="text" id="add-email" placeholder="user@example.com"></div>
-          <div class="input-group"><label>Space \u540d\u79f0</label><input type="text" id="add-space" placeholder="dandyseal"></div>
-          <div class="input-group"><label>Zo Access Token</label><input type="text" id="add-token" placeholder="zo_sk_..."></div>
-          <button class="btn btn-primary" onclick="addToken()">\u6dfb\u52a0</button>
+          <div class="input-group"><label>名称 / 备注</label><input type="text" id="add-name" placeholder="例如：主账号、备用Key1"></div>
+          <div class="input-group"><label>API Key / Token</label><input type="text" id="add-token" placeholder="sk-..."></div>
+          <button class="btn btn-primary" onclick="addToken()">添加</button>
         </div>
         <div class="bulk-toggle">
-          <button class="btn btn-outline btn-sm" onclick="toggleBulk()">\u6279\u91cf\u5bfc\u5165</button>
+          <button class="btn btn-outline btn-sm" onclick="toggleBulk()">批量导入</button>
         </div>
         <div id="bulk-box" class="bulk-box hidden">
-          <textarea id="bulk-tokens" placeholder="\u6bcf\u884c\u4e00\u4e2a\uff0c\u683c\u5f0f\uff1a\u90ae\u7bb1,Space\u540d\u79f0,Token&#10;user@example.com,dandyseal,zo_sk_xxx&#10;&#10;\u4e5f\u652f\u6301\u53ea\u586bToken\uff1a&#10;zo_sk_xxx"></textarea>
-          <p class="bulk-hint">\u683c\u5f0f\uff1a\u90ae\u7bb1,Space\u540d\u79f0,Token\uff08\u90ae\u7bb1\u548cSpace\u53ef\u7701\u7565\uff09</p>
-          <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="bulkAdd()">\u6279\u91cf\u6dfb\u52a0</button>
+          <textarea id="bulk-tokens" placeholder="每行一个，格式：名称,Token&#10;主号,sk-xxx&#10;&#10;也支持只填Token（名称自动设为Unnamed）：&#10;sk-yyy"></textarea>
+          <p class="bulk-hint">格式：名称,Token（使用英文逗号分隔）</p>
+          <button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="bulkAdd()">批量添加</button>
         </div>
       </div>
       <div class="card card-fill">
-        <h3>Token \u5217\u8868</h3>
+        <h3>Token 列表</h3>
         <div class="table-wrap" style="flex:1">
           <table>
-            <thead><tr><th>\u90ae\u7bb1</th><th>Space</th><th>Token</th><th>\u6dfb\u52a0\u65f6\u95f4</th><th>\u542f\u7528</th><th>\u6709\u6548\u6027</th><th>\u64cd\u4f5c</th></tr></thead>
+            <thead><tr><th>名称/备注</th><th>API Key</th><th>添加时间</th><th>启用</th><th>有效性</th><th>操作</th></tr></thead>
             <tbody id="token-list"></tbody>
           </table>
-          <div id="list-empty" class="empty-state hidden">\u8fd8\u6ca1\u6709 Token</div>
+          <div id="list-empty" class="empty-state hidden">还没有 Token</div>
         </div>
         <div id="token-pagination" class="pagination"></div>
       </div>
@@ -251,68 +234,44 @@ export function getAdminHTML(baseUrl: string): string {
 
     <!-- Info -->
     <div class="page" id="page-info">
-      <div class="page-title">\u63a5\u5165\u4fe1\u606f</div>
+      <div class="page-title">接入信息</div>
       <div class="card">
-        <h3>API \u7aef\u70b9</h3>
+        <h3>通用 API 端点</h3>
         <div class="info-grid">
           <div class="info-item"><div class="label">Base URL</div><div class="val">${baseUrl}</div></div>
-          <div class="info-item"><div class="label">Anthropic \u517c\u5bb9</div><div class="val">/v1/messages</div></div>
-          <div class="info-item"><div class="label">OpenAI \u517c\u5bb9</div><div class="val">/v1/chat/completions</div></div>
-          <div class="info-item"><div class="label">\u6a21\u578b\u5217\u8868</div><div class="val">/v1/models</div></div>
+          <div class="info-item"><div class="label">OpenAI 格式聊天</div><div class="val">/v1/chat/completions</div></div>
+          <div class="info-item"><div class="label">Anthropic 格式聊天</div><div class="val">/v1/messages</div></div>
+          <div class="info-item"><div class="label">模型列表获取</div><div class="val">/v1/models</div></div>
         </div>
       </div>
       <div class="card">
-        <h3>\u652f\u6301\u7684\u6a21\u578b</h3>
-        <div class="info-grid">
-          <div class="info-item"><div class="label">Anthropic</div><div class="val">claude-opus-4-7</div></div>
-          <div class="info-item"><div class="label">Anthropic</div><div class="val">claude-sonnet-4-6</div></div>
-          <div class="info-item"><div class="label">OpenAI</div><div class="val">gpt-5.3-codex</div></div>
-          <div class="info-item"><div class="label">OpenAI</div><div class="val">gpt-5.4 / gpt-5.5</div></div>
-          <div class="info-item"><div class="label">OpenAI</div><div class="val">gpt-5.4-mini</div></div>
-          <div class="info-item"><div class="label">DeepSeek</div><div class="val">deepseek-v4-pro</div></div>
-          <div class="info-item"><div class="label">Z.AI</div><div class="val">glm-5</div></div>
-          <div class="info-item"><div class="label">Minimax</div><div class="val">minimax-m2.5 / m2.7</div></div>
-          <div class="info-item"><div class="label">Google</div><div class="val">gemini-3.1-pro-preview</div></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>OpenAI \u683c\u5f0f (\u901a\u7528)</h3>
+        <h3>OpenAI 客户端调用示例</h3>
         <div class="code-box">curl -s ${baseUrl}/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer YOUR_GATEWAY_KEY" \\
   -d '{
-    "model": "zo:openai/gpt-5.4",
-    "messages": [{"role":"user","content":"\u4f60\u597d"}]
+    "model": "gpt-4o",
+    "messages": [{"role":"user","content":"你好"}]
   }'</div>
       </div>
       <div class="card">
-        <h3>Anthropic \u683c\u5f0f</h3>
+        <h3>Anthropic (Claude) 调用示例</h3>
         <div class="code-box">curl -s ${baseUrl}/v1/messages \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer YOUR_GATEWAY_KEY" \\
+  -H "anthropic-version: 2023-06-01" \\
   -d '{
-    "model": "claude-sonnet-4-6",
+    "model": "claude-3-opus-20240229",
     "max_tokens": 1024,
-    "messages": [{"role":"user","content":"\u4f60\u597d"}]
+    "messages": [{"role":"user","content":"你好"}]
   }'</div>
       </div>
       <div class="card">
-        <h3>Claude Code \u914d\u7f6e</h3>
+        <h3>Claude Code 配置</h3>
         <div class="code-box">export ANTHROPIC_BASE_URL=${baseUrl}
-export ANTHROPIC_API_KEY=\u4f60\u7684GatewayKey
+export ANTHROPIC_API_KEY=YOUR_GATEWAY_KEY
 
 claude</div>
-      </div>
-      <div class="card">
-        <h3>\u8fdc\u7a0b\u5bfc\u5165 Token\uff08\u811a\u672c/\u63d2\u4ef6\u7528\uff09</h3>
-        <div class="code-box">curl -X POST ${baseUrl}/admin/tokens \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer YOUR_GATEWAY_KEY" \\
-  -d '{
-    "token": "zo_sk_xxx",
-    "email": "user@example.com",
-    "spaceName": "dandyseal"
-  }'</div>
       </div>
     </div>
   </div>
@@ -321,19 +280,15 @@ claude</div>
 <!-- Edit Modal -->
 <div id="edit-modal" class="modal-overlay hidden">
   <div class="modal">
-    <h3>\u7f16\u8f91\u8d26\u53f7\u4fe1\u606f</h3>
+    <h3>编辑账号信息</h3>
     <input type="hidden" id="edit-token-id">
     <div class="input-group">
-      <label>\u90ae\u7bb1</label>
-      <input type="text" id="edit-email" placeholder="user@example.com">
-    </div>
-    <div class="input-group">
-      <label>Space \u540d\u79f0</label>
-      <input type="text" id="edit-space" placeholder="dandyseal">
+      <label>名称 / 备注</label>
+      <input type="text" id="edit-name" placeholder="账号备注">
     </div>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeEditModal()">\u53d6\u6d88</button>
-      <button class="btn btn-primary" onclick="saveEdit()">\u4fdd\u5b58</button>
+      <button class="btn btn-outline" onclick="closeEditModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveEdit()">保存</button>
     </div>
   </div>
 </div>
@@ -346,20 +301,6 @@ let tokenPage = 1;
 let recentPage = 1;
 let allTokens = [];
 
-const ZO_MODELS = [
-  { name: 'claude-opus-4-7', provider: 'anthropic' },
-  { name: 'claude-sonnet-4-6', provider: 'anthropic' },
-  { name: 'gpt-5.3-codex', provider: 'openai' },
-  { name: 'gpt-5.4', provider: 'openai' },
-  { name: 'gpt-5.5', provider: 'openai' },
-  { name: 'gpt-5.4-mini', provider: 'openai' },
-  { name: 'deepseek-v4-pro', provider: 'deepseek' },
-  { name: 'glm-5', provider: 'zai' },
-  { name: 'minimax-m2.5', provider: 'minimax' },
-  { name: 'minimax-m2.7', provider: 'minimax' },
-  { name: 'gemini-3.1-pro-preview', provider: 'google' },
-];
-
 function toast(msg, ok = true) {
   const el = document.createElement('div');
   el.className = 'toast ' + (ok ? 'toast-ok' : 'toast-err');
@@ -369,6 +310,7 @@ function toast(msg, ok = true) {
 }
 
 function mask(t) {
+  if (!t) return '-';
   if (t.length <= 12) return t;
   return t.slice(0, 8) + '...' + t.slice(-4);
 }
@@ -389,7 +331,7 @@ function renderPagination(containerId, total, currentPage, onPageChange) {
   container.classList.remove('hidden');
   const start = (currentPage - 1) * PAGE_SIZE + 1;
   const end = Math.min(currentPage * PAGE_SIZE, total);
-  let html = '<div class="info">\u663e\u793a ' + start + '-' + end + ' / \u5171 ' + total + ' \u6761</div><div class="pages">';
+  let html = '<div class="info">显示 ' + start + '-' + end + ' / 共 ' + total + ' 条</div><div class="pages">';
   html += '<button class="page-btn" onclick="' + onPageChange + '(' + (currentPage - 1) + ')"' + (currentPage <= 1 ? ' disabled' : '') + '>&lt;</button>';
   for (let i = 1; i <= totalPages; i++) {
     if (totalPages > 7 && i > 3 && i < totalPages - 2 && Math.abs(i - currentPage) > 1) {
@@ -405,7 +347,7 @@ function renderPagination(containerId, total, currentPage, onPageChange) {
 
 // Auto login
 (function tryAutoLogin() {
-  const saved = localStorage.getItem('zo_gw_key');
+  const saved = localStorage.getItem('api_gw_key');
   if (saved) {
     authKey = saved;
     api('GET', '/admin/tokens').then(() => {
@@ -413,28 +355,28 @@ function renderPagination(containerId, total, currentPage, onPageChange) {
       document.getElementById('app').style.display = 'flex';
       loadDashboard();
     }).catch(() => {
-      localStorage.removeItem('zo_gw_key');
+      localStorage.removeItem('api_gw_key');
     });
   }
 })();
 
 async function login() {
   authKey = document.getElementById('login-key').value.trim();
-  if (!authKey) return toast('\u8bf7\u8f93\u5165 Gateway Key', false);
+  if (!authKey) return toast('请输入 Gateway Key', false);
   try {
     await api('GET', '/admin/tokens');
     if (document.getElementById('remember-me').checked) {
-      localStorage.setItem('zo_gw_key', authKey);
+      localStorage.setItem('api_gw_key', authKey);
     }
     document.getElementById('login-view').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     loadDashboard();
-  } catch (e) { toast('\u5bc6\u94a5\u9519\u8bef', false); }
+  } catch (e) { toast('密钥错误', false); }
 }
 
 function logout() {
   authKey = '';
-  localStorage.removeItem('zo_gw_key');
+  localStorage.removeItem('api_gw_key');
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-view').style.display = 'flex';
   document.getElementById('login-key').value = '';
@@ -459,10 +401,9 @@ async function loadDashboard() {
     const data = await api('GET', '/admin/tokens');
     allTokens = data.tokens;
     renderStats(data.tokens, data.pool_status);
-    renderModelTags();
     recentPage = 1;
     renderRecent();
-  } catch (e) { toast('\u52a0\u8f7d\u5931\u8d25\uff1a' + e.message, false); }
+  } catch (e) { toast('加载失败：' + e.message, false); }
 }
 
 async function loadTokens() {
@@ -470,7 +411,7 @@ async function loadTokens() {
     const data = await api('GET', '/admin/tokens');
     allTokens = data.tokens;
     renderTokenList();
-  } catch (e) { toast('\u52a0\u8f7d\u5931\u8d25\uff1a' + e.message, false); }
+  } catch (e) { toast('加载失败：' + e.message, false); }
 }
 
 function renderStats(tokens, pool) {
@@ -481,14 +422,6 @@ function renderStats(tokens, pool) {
   document.getElementById('s-available').textContent = pool.available;
   document.getElementById('s-disabled').textContent = disabled;
   document.getElementById('s-valid').textContent = valid;
-  document.getElementById('s-models').textContent = ZO_MODELS.length;
-}
-
-function renderModelTags() {
-  const container = document.getElementById('model-tags');
-  container.innerHTML = ZO_MODELS.map(m =>
-    '<span class="model-tag"><span class="dot dot-' + m.provider + '"></span>' + m.name + '</span>'
-  ).join('');
 }
 
 function goRecentPage(p) {
@@ -508,10 +441,9 @@ function renderRecent() {
   const start = (recentPage - 1) * PAGE_SIZE;
   const page = sorted.slice(start, start + PAGE_SIZE);
   tbody.innerHTML = page.map(t => {
-    const st = t.enabled ? '<span class="badge badge-on">\u542f\u7528</span>' : '<span class="badge badge-off">\u7981\u7528</span>';
+    const st = t.enabled ? '<span class="badge badge-on">启用</span>' : '<span class="badge badge-off">禁用</span>';
     return \`<tr>
-      <td class="token-mono">\${t.email || '-'}</td>
-      <td>\${t.spaceName || '-'}</td>
+      <td class="token-mono">\${t.name || 'Unnamed'}</td>
       <td style="color:#a8a29e">\${new Date(t.addedAt).toLocaleDateString('zh-CN')}</td>
       <td>\${st}</td>
     </tr>\`;
@@ -527,9 +459,9 @@ function goTokenPage(p) {
 }
 
 function statusBadge(t) {
-  if (t.status === 'valid') return '<span class="badge badge-valid">\u6709\u6548</span>';
-  if (t.status === 'invalid') return '<span class="badge badge-invalid">\u5931\u6548</span>' + (t.disableReason ? '<div class="disable-reason">' + t.disableReason + '</div>' : '');
-  return '<span class="badge badge-unchecked">\u672a\u68c0\u6d4b</span>';
+  if (t.status === 'valid') return '<span class="badge badge-valid">有效</span>';
+  if (t.status === 'invalid') return '<span class="badge badge-invalid">失效</span>' + (t.disableReason ? '<div class="disable-reason">' + t.disableReason + '</div>' : '');
+  return '<span class="badge badge-unchecked">未检测</span>';
 }
 
 function lastCheckedText(t) {
@@ -545,20 +477,19 @@ function renderTokenList() {
   const start = (tokenPage - 1) * PAGE_SIZE;
   const page = allTokens.slice(start, start + PAGE_SIZE);
   tbody.innerHTML = page.map(t => {
-    const st = t.enabled ? '<span class="badge badge-on">\u542f\u7528</span>' : '<span class="badge badge-off">\u7981\u7528</span>';
+    const st = t.enabled ? '<span class="badge badge-on">启用</span>' : '<span class="badge badge-off">禁用</span>';
     const tBtn = t.enabled
-      ? \`<button class="btn btn-outline btn-sm" onclick="toggleTk('\${t.token}',false)">\u7981\u7528</button>\`
-      : \`<button class="btn btn-success btn-sm" onclick="toggleTk('\${t.token}',true)">\u542f\u7528</button>\`;
+      ? \`<button class="btn btn-outline btn-sm" onclick="toggleTk('\${t.token}',false)">禁用</button>\`
+      : \`<button class="btn btn-success btn-sm" onclick="toggleTk('\${t.token}',true)">启用</button>\`;
     return \`<tr>
-      <td class="token-mono">\${t.email || '-'}</td>
-      <td>\${t.spaceName || '-'}</td>
+      <td class="token-mono">\${t.name || 'Unnamed'}</td>
       <td class="token-mono">\${mask(t.token)}</td>
       <td style="color:#a8a29e">\${new Date(t.addedAt).toLocaleDateString('zh-CN')}</td>
       <td>\${st}</td>
       <td>\${statusBadge(t)}\${lastCheckedText(t)}</td>
       <td><div class="actions-cell">
-        <button class="btn btn-outline btn-sm" onclick="openEdit('\${t.token}','\${(t.email||'').replace(/'/g,"\\\\'")}',' \${(t.spaceName||'').replace(/'/g,"\\\\'")}')">编辑</button>
-        <button class="btn btn-outline btn-sm" onclick="checkSingle('\${t.token}')">\u68c0\u6d4b</button>
+        <button class="btn btn-outline btn-sm" onclick="openEdit('\${t.token}','\${(t.name||'').replace(/'/g,"\\\\'")}')">编辑</button>
+        <button class="btn btn-outline btn-sm" onclick="checkSingle('\${t.token}')">检测</button>
         \${tBtn}
         <button class="btn btn-danger btn-sm" onclick="removeTk('\${t.token}')">删除</button>
       </div></td>
@@ -568,16 +499,14 @@ function renderTokenList() {
 }
 
 async function addToken() {
-  const email = document.getElementById('add-email').value.trim();
-  const spaceName = document.getElementById('add-space').value.trim();
+  const name = document.getElementById('add-name').value.trim();
   const token = document.getElementById('add-token').value.trim();
-  if (!token) return toast('\u8bf7\u8f93\u5165 Token', false);
+  if (!token) return toast('请输入 Token', false);
   try {
-    await api('POST', '/admin/tokens', { token, email: email || undefined, spaceName: spaceName || undefined });
-    document.getElementById('add-email').value = '';
-    document.getElementById('add-space').value = '';
+    await api('POST', '/admin/tokens', { token, name: name || undefined });
+    document.getElementById('add-name').value = '';
     document.getElementById('add-token').value = '';
-    toast('\u6dfb\u52a0\u6210\u529f');
+    toast('添加成功');
     loadTokens();
   } catch (e) { toast(e.message, false); }
 }
@@ -586,35 +515,32 @@ function toggleBulk() { document.getElementById('bulk-box').classList.toggle('hi
 
 async function bulkAdd() {
   const raw = document.getElementById('bulk-tokens').value.trim();
-  if (!raw) return toast('\u8bf7\u8f93\u5165 Token', false);
+  if (!raw) return toast('请输入 Token', false);
   const lines = raw.split('\\n').map(l => l.trim()).filter(Boolean);
   let ok = 0, fail = 0;
   for (const line of lines) {
     const parts = line.split(',').map(s => s.trim());
-    let email = '', spaceName = '', token = '';
-    if (parts.length >= 3) {
-      email = parts[0]; spaceName = parts[1]; token = parts[2];
-    } else if (parts.length === 2) {
-      email = parts[0]; token = parts[1];
+    let name = '', token = '';
+    if (parts.length >= 2) {
+      name = parts[0]; token = parts[1];
     } else {
       token = parts[0];
     }
     if (!token) { fail++; continue; }
     try {
-      await api('POST', '/admin/tokens', { token, email: email || undefined, spaceName: spaceName || undefined });
+      await api('POST', '/admin/tokens', { token, name: name || undefined });
       ok++;
     } catch { fail++; }
   }
   document.getElementById('bulk-tokens').value = '';
-  toast(\`\u5bfc\u5165\u5b8c\u6210\uff1a\${ok} \u6210\u529f\${fail > 0 ? '\uff0c' + fail + ' \u5931\u8d25' : ''}\`);
+  toast(\`导入完成：\${ok} 成功\${fail > 0 ? '，' + fail + ' 失败' : ''}\`);
   loadTokens();
 }
 
 // Edit modal
-function openEdit(token, email, spaceName) {
+function openEdit(token, name) {
   document.getElementById('edit-token-id').value = token;
-  document.getElementById('edit-email').value = email;
-  document.getElementById('edit-space').value = spaceName;
+  document.getElementById('edit-name').value = name;
   document.getElementById('edit-modal').classList.remove('hidden');
 }
 
@@ -624,24 +550,23 @@ function closeEditModal() {
 
 async function saveEdit() {
   const token = document.getElementById('edit-token-id').value;
-  const email = document.getElementById('edit-email').value.trim();
-  const spaceName = document.getElementById('edit-space').value.trim();
+  const name = document.getElementById('edit-name').value.trim();
   try {
-    await api('PATCH', '/admin/tokens', { token, email, spaceName });
-    toast('\u4fdd\u5b58\u6210\u529f');
+    await api('PATCH', '/admin/tokens', { token, name });
+    toast('保存成功');
     closeEditModal();
     loadTokens();
   } catch (e) { toast(e.message, false); }
 }
 
 async function removeTk(token) {
-  if (!confirm('\u786e\u5b9a\u5220\u9664\uff1f')) return;
-  try { await api('DELETE', '/admin/tokens', { token }); toast('\u5df2\u5220\u9664'); loadTokens(); }
+  if (!confirm('确定删除？')) return;
+  try { await api('DELETE', '/admin/tokens', { token }); toast('已删除'); loadTokens(); }
   catch (e) { toast(e.message, false); }
 }
 
 async function toggleTk(token, enabled) {
-  try { await api('PATCH', '/admin/tokens', { token, enabled }); toast(enabled ? '\u5df2\u542f\u7528' : '\u5df2\u7981\u7528'); loadTokens(); }
+  try { await api('PATCH', '/admin/tokens', { token, enabled }); toast(enabled ? '已启用' : '已禁用'); loadTokens(); }
   catch (e) { toast(e.message, false); }
 }
 
@@ -649,30 +574,30 @@ async function checkAllTokens() {
   const btn = document.getElementById('btn-check-all');
   const progress = document.getElementById('check-progress');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinning">\u26a1</span> \u68c0\u6d4b\u4e2d...';
-  progress.textContent = '\u6b63\u5728\u68c0\u6d4b\u6240\u6709 Token \u72b6\u6001...';
+  btn.innerHTML = '<span class="spinning">&#9889;</span> 检测中...';
+  progress.textContent = '正在发起对话测试，验证存活状态...';
   try {
     const data = await api('POST', '/admin/check-tokens');
-    toast('\u68c0\u6d4b\u5b8c\u6210: ' + data.valid + ' \u6709\u6548, ' + data.invalid + ' \u5931\u6548');
-    progress.textContent = '\u4e0a\u6b21\u68c0\u6d4b: ' + new Date().toLocaleString('zh-CN');
+    toast('检测完成: ' + data.valid + ' 有效, ' + data.invalid + ' 失效');
+    progress.textContent = '上次检测: ' + new Date().toLocaleString('zh-CN');
     loadTokens();
   } catch (e) {
-    toast('\u68c0\u6d4b\u5931\u8d25: ' + e.message, false);
+    toast('检测失败: ' + e.message, false);
     progress.textContent = '';
   }
   btn.disabled = false;
-  btn.innerHTML = '\u26a1 \u4e00\u952e\u68c0\u6d4b\u72b6\u6001';
+  btn.innerHTML = '&#9889; 一键检测所有状态';
 }
 
 async function checkSingle(token) {
-  toast('\u6b63\u5728\u68c0\u6d4b...');
+  toast('正在测试...');
   try {
     const data = await api('POST', '/admin/check-token', { token });
-    const msg = data.valid ? '\u6709\u6548' : '\u5931\u6548';
-    toast('\u68c0\u6d4b\u7ed3\u679c: ' + msg, data.valid);
+    const msg = data.valid ? '有效' : '失效';
+    toast('检测结果: ' + msg, data.valid);
     loadTokens();
   } catch (e) {
-    toast('\u68c0\u6d4b\u5931\u8d25: ' + e.message, false);
+    toast('检测失败: ' + e.message, false);
   }
 }
 </script>

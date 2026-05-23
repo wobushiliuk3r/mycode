@@ -164,8 +164,7 @@ export default {
 
         const safeTokens = tokens.map((t) => ({
           token: t.token,
-          email: t.email || '',
-          spaceName: t.spaceName || '',
+          name: t.name || '',
           addedAt: t.addedAt,
           enabled: t.enabled,
           lastChecked: t.lastChecked || null,
@@ -180,10 +179,10 @@ export default {
       }
 
       if (request.method === 'POST') {
-        const body = (await request.json()) as { token: string; email?: string; spaceName?: string };
+        const body = (await request.json()) as { token: string; name?: string };
         if (!body.token) return jsonResponse({ error: 'token is required' }, 400);
         try {
-          const tokens = await addToken(env.KV, body.token, body.email, body.spaceName);
+          const tokens = await addToken(env.KV, body.token, body.name);
           return jsonResponse({ ok: true, count: tokens.length });
         } catch (e) {
           return jsonResponse({ error: (e as Error).message }, 400);
@@ -198,15 +197,15 @@ export default {
       }
 
       if (request.method === 'PATCH') {
-        const body = (await request.json()) as { token: string; enabled?: boolean; email?: string; spaceName?: string };
+        const body = (await request.json()) as { token: string; enabled?: boolean; name?: string };
         if (!body.token) return jsonResponse({ error: 'token is required' }, 400);
         if (body.enabled !== undefined) {
           const tokens = await toggleToken(env.KV, body.token, body.enabled);
           return jsonResponse({ ok: true, count: tokens.length });
         }
-        if (body.email !== undefined || body.spaceName !== undefined) {
+        if (body.name !== undefined) {
           try {
-            const tokens = await updateToken(env.KV, body.token, { email: body.email, spaceName: body.spaceName });
+            const tokens = await updateToken(env.KV, body.token, { name: body.name });
             return jsonResponse({ ok: true, count: tokens.length });
           } catch (e) {
             return jsonResponse({ error: (e as Error).message }, 400);
@@ -223,10 +222,11 @@ export default {
       if (!verifyAdmin(request, env)) return jsonResponse({ error: 'Unauthorized' }, 401);
       if (!env.KV) return jsonResponse({ error: 'KV Namespace not configured' }, 500);
 
+      const rawBaseUrl = env.TARGET_BASE_URL || 'https://api.openai.com';
       const tokens = await getTokens(env.KV);
       const results = [];
       for (const t of tokens) {
-        const check = await checkTokenValidity(t.token);
+        const check = await checkTokenValidity(t.token, rawBaseUrl);
         const disabled = !check.valid;
         if (check.valid) {
           await updateTokenStatus(env.KV, t.token, 'valid');
@@ -247,7 +247,8 @@ export default {
       const body = (await request.json()) as { token: string };
       if (!body.token) return jsonResponse({ error: 'token is required' }, 400);
 
-      const validity = await checkTokenValidity(body.token);
+      const rawBaseUrl = env.TARGET_BASE_URL || 'https://api.openai.com';
+      const validity = await checkTokenValidity(body.token, rawBaseUrl);
       if (validity.valid) {
         await updateTokenStatus(env.KV, body.token, 'valid');
       } else {

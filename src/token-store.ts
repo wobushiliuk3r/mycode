@@ -1,10 +1,8 @@
-const KV_KEY = 'zo_tokens';
+const KV_KEY = 'upstream_tokens';
 
 export interface StoredToken {
   token: string;
-  label: string;
-  email?: string;
-  spaceName?: string;
+  name: string; // Used to be label/email/spaceName
   addedAt: number;
   enabled: boolean;
   lastChecked?: number;
@@ -14,16 +12,34 @@ export interface StoredToken {
 
 export async function getTokens(kv: KVNamespace): Promise<StoredToken[]> {
   const raw = await kv.get(KV_KEY);
-  if (!raw) return [];
+  // Also try to read from the old key for backwards compatibility if new key is empty
+  if (!raw) {
+    const oldRaw = await kv.get('zo_tokens');
+    if (oldRaw) {
+      try {
+        const oldTokens = JSON.parse(oldRaw);
+        const migratedTokens: StoredToken[] = oldTokens.map((t: any) => ({
+          token: t.token,
+          name: t.email || t.label || t.spaceName || 'Migrated Token',
+          addedAt: t.addedAt || Date.now(),
+          enabled: t.enabled !== false,
+          lastChecked: t.lastChecked,
+          status: t.status || 'unchecked',
+          disableReason: t.disableReason
+        }));
+        await kv.put(KV_KEY, JSON.stringify(migratedTokens));
+        return migratedTokens;
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  }
+
   try {
     const tokens = JSON.parse(raw) as StoredToken[];
     let migrated = false;
     for (const t of tokens) {
-      if (!t.email && t.label && t.label.includes('@')) {
-        t.email = t.label;
-        t.label = '';
-        migrated = true;
-      }
       if (t.status === undefined) {
         t.status = 'unchecked';
         migrated = true;
@@ -41,15 +57,18 @@ export async function getTokens(kv: KVNamespace): Promise<StoredToken[]> {
 export async function addToken(
   kv: KVNamespace,
   token: string,
-  email?: string,
-  spaceName?: string,
+  name?: string,
 ): Promise<StoredToken[]> {
   const tokens = await getTokens(kv);
   const exists = tokens.some((t) => t.token === token);
   if (exists) throw new Error('Token already exists');
-  const entry: StoredToken = { token, label: '', addedAt: Date.now(), enabled: true, status: 'unchecked' };
-  if (email) entry.email = email;
-  if (spaceName) entry.spaceName = spaceName;
+  const entry: StoredToken = {
+    token,
+    name: name || 'Unnamed Token',
+    addedAt: Date.now(),
+    enabled: true,
+    status: 'unchecked'
+  };
   tokens.push(entry);
   await kv.put(KV_KEY, JSON.stringify(tokens));
   return tokens;
@@ -76,13 +95,12 @@ export async function toggleToken(kv: KVNamespace, token: string, enabled: boole
 export async function updateToken(
   kv: KVNamespace,
   token: string,
-  updates: { email?: string; spaceName?: string },
+  updates: { name?: string },
 ): Promise<StoredToken[]> {
   const tokens = await getTokens(kv);
   const t = tokens.find((t) => t.token === token);
   if (!t) throw new Error('Token not found');
-  if (updates.email !== undefined) t.email = updates.email;
-  if (updates.spaceName !== undefined) t.spaceName = updates.spaceName;
+  if (updates.name !== undefined) t.name = updates.name;
   await kv.put(KV_KEY, JSON.stringify(tokens));
   return tokens;
 }
