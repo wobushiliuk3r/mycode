@@ -200,6 +200,7 @@ export function getAdminHTML(baseUrl: string): string {
         <p style="font-size:0.85rem;color:#78716c;margin-bottom:12px">向配置的目标服务器发送 Google/gemini-3.1-pro-preview 模型的简单测试对话，验证 Key 是否真实存活可用。</p>
         <div class="check-actions">
           <button class="btn btn-primary" id="btn-check-all" onclick="checkAllTokens()">&#9889; 一键检测所有状态</button>
+          <button class="btn btn-danger" id="btn-delete-invalid" onclick="deleteInvalidTokens()" style="margin-left: 8px;">&#128465; 清理所有失效 Token</button>
           <span id="check-progress" style="font-size:0.85rem;color:#78716c;align-self:center"></span>
         </div>
       </div>
@@ -599,6 +600,36 @@ async function checkSingle(token) {
   } catch (e) {
     toast('检测失败: ' + e.message, false);
   }
+}
+
+async function deleteInvalidTokens() {
+  const invalidTokens = allTokens.filter(t => t.status === 'invalid');
+  if (invalidTokens.length === 0) {
+    return toast('当前没有失效的 Token 需要清理');
+  }
+
+  if (!confirm(`确定要彻底删除 ${invalidTokens.length} 个失效的 Token 吗？此操作不可恢复！`)) return;
+
+  const btn = document.getElementById('btn-delete-invalid');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinning">&#8987;</span> 清理中...';
+
+  let ok = 0;
+  let fail = 0;
+
+  for (const t of invalidTokens) {
+    try {
+      await api('DELETE', '/admin/tokens', { token: t.token });
+      ok++;
+    } catch (e) {
+      fail++;
+    }
+  }
+
+  toast(`清理完成: 成功删除 ${ok} 个${fail > 0 ? `, 失败 ${fail} 个` : ''}`);
+  btn.disabled = false;
+  btn.innerHTML = '&#128465; 清理所有失效 Token';
+  loadTokens();
 }
 </script>
 </body>
