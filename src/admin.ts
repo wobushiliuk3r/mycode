@@ -201,6 +201,7 @@ export function getAdminHTML(baseUrl: string): string {
         <div class="check-actions">
           <button class="btn btn-primary" id="btn-check-all" onclick="checkAllTokens()">&#9889; 一键检测所有状态</button>
           <button class="btn btn-danger" id="btn-delete-invalid" onclick="deleteInvalidTokens()" style="margin-left: 8px;">&#128465; 清理所有失效 Token</button>
+          <button class="btn btn-success" onclick="enableValidTokens()" style="margin-left: 8px;">&#9989; 一键启用有效</button>
           <button class="btn btn-outline" onclick="exportTokens()" style="margin-left: 8px;">&#128190; 导出全部 Token</button>
           <span id="check-progress" style="font-size:0.85rem;color:#78716c;align-self:center"></span>
         </div>
@@ -619,6 +620,18 @@ async function checkSingle(token) {
   } catch (e) {
     toast('检测失败: ' + e.message, false);
   }
+}
+
+async function enableValidTokens() {
+  const targets = allTokens.filter(t => t.status === 'valid' && !t.enabled);
+  if (targets.length === 0) return toast('没有需要启用的有效 Token');
+  let ok = 0, fail = 0;
+  for (const t of targets) {
+    try { await api('PATCH', '/admin/tokens', { token: t.token, enabled: true }); ok++; }
+    catch { fail++; }
+  }
+  toast('已启用 ' + ok + ' 个有效 Token' + (fail > 0 ? '，失败 ' + fail + ' 个' : ''), fail === 0);
+  loadTokens();
 }
 
 function exportTokens() {
