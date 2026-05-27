@@ -197,10 +197,11 @@ export function getAdminHTML(baseUrl: string): string {
       <div class="page-title">号池管理</div>
       <div class="card">
         <h3>连通性检测</h3>
-        <p style="font-size:0.85rem;color:#78716c;margin-bottom:12px">向配置的目标服务器发送 Google/gemini-3.1-pro-preview 模型的简单测试对话，验证 Key 是否真实存活可用。</p>
+        <p style="font-size:0.85rem;color:#78716c;margin-bottom:12px">向配置的目标服务器发送 Anthropic/sonnet-4.6 模型的简单测试对话，验证 Key 是否真实存活可用。</p>
         <div class="check-actions">
           <button class="btn btn-primary" id="btn-check-all" onclick="checkAllTokens()">&#9889; 一键检测所有状态</button>
           <button class="btn btn-danger" id="btn-delete-invalid" onclick="deleteInvalidTokens()" style="margin-left: 8px;">&#128465; 清理所有失效 Token</button>
+          <button class="btn btn-outline" onclick="exportTokens()" style="margin-left: 8px;">&#128190; 导出全部 Token</button>
           <span id="check-progress" style="font-size:0.85rem;color:#78716c;align-self:center"></span>
         </div>
       </div>
@@ -618,6 +619,23 @@ async function checkSingle(token) {
   } catch (e) {
     toast('检测失败: ' + e.message, false);
   }
+}
+
+function exportTokens() {
+  if (allTokens.length === 0) return toast('当前没有 Token 可导出', false);
+  const text = allTokens.map(t => t.token).join('\\n');
+  navigator.clipboard.writeText(text).then(() => {
+    toast('已复制 ' + allTokens.length + ' 个 Token 到剪贴板');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:200px;z-index:9999;font-family:monospace;font-size:12px;padding:10px';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    toast('请手动复制以上文本框中的内容');
+    ta.addEventListener('blur', () => ta.remove());
+  });
 }
 
 async function deleteInvalidTokens() {

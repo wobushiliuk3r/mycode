@@ -11,8 +11,8 @@ export async function checkTokenValidity(token: string, targetBaseUrl: string): 
     const targetUrl = targetBaseUrl.endsWith('/') ? targetBaseUrl.slice(0, -1) : targetBaseUrl;
 
     const testPayload = {
-      model: "Google/gemini-3.1-pro-preview",
-      messages: [{ role: "user", content: "Hi" }],
+      model: "Anthropic/sonnet-4.6",
+      messages: [{ role: "user", content: "echo 1" }],
       max_tokens: 5,
       stream: false
     };
