@@ -260,10 +260,12 @@ app.all('*', async (req, res) => {
       }
 
       // Forward response headers
+      // Node.js fetch (undici) auto-decompresses responses, so strip
+      // content-encoding and content-length to avoid client decode errors
       res.status(upstream.status);
       for (const [k, v] of upstream.headers.entries()) {
         const lower = k.toLowerCase();
-        if (lower === 'transfer-encoding') continue;
+        if (lower === 'transfer-encoding' || lower === 'content-encoding' || lower === 'content-length') continue;
         res.setHeader(k, v);
       }
       applyCors(res);
