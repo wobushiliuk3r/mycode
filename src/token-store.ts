@@ -1,3 +1,5 @@
+import type { KVStore } from './storage';
+
 const KV_KEY = 'upstream_tokens';
 
 export interface StoredToken {
@@ -10,7 +12,7 @@ export interface StoredToken {
   disableReason?: string;
 }
 
-export async function getTokens(kv: KVNamespace): Promise<StoredToken[]> {
+export async function getTokens(kv: KVStore): Promise<StoredToken[]> {
   const raw = await kv.get(KV_KEY);
   // Also try to read from the old key for backwards compatibility if new key is empty
   if (!raw) {
@@ -55,7 +57,7 @@ export async function getTokens(kv: KVNamespace): Promise<StoredToken[]> {
 }
 
 export async function addToken(
-  kv: KVNamespace,
+  kv: KVStore,
   token: string,
   name?: string,
 ): Promise<StoredToken[]> {
@@ -74,14 +76,14 @@ export async function addToken(
   return tokens;
 }
 
-export async function removeToken(kv: KVNamespace, token: string): Promise<StoredToken[]> {
+export async function removeToken(kv: KVStore, token: string): Promise<StoredToken[]> {
   let tokens = await getTokens(kv);
   tokens = tokens.filter((t) => t.token !== token);
   await kv.put(KV_KEY, JSON.stringify(tokens));
   return tokens;
 }
 
-export async function toggleToken(kv: KVNamespace, token: string, enabled: boolean): Promise<StoredToken[]> {
+export async function toggleToken(kv: KVStore, token: string, enabled: boolean): Promise<StoredToken[]> {
   const tokens = await getTokens(kv);
   const t = tokens.find((t) => t.token === token);
   if (t) {
@@ -93,7 +95,7 @@ export async function toggleToken(kv: KVNamespace, token: string, enabled: boole
 }
 
 export async function updateToken(
-  kv: KVNamespace,
+  kv: KVStore,
   token: string,
   updates: { name?: string },
 ): Promise<StoredToken[]> {
@@ -106,7 +108,7 @@ export async function updateToken(
 }
 
 export async function updateTokenStatus(
-  kv: KVNamespace,
+  kv: KVStore,
   token: string,
   status: 'valid' | 'invalid' | 'unchecked',
   disableReason?: string,
@@ -126,7 +128,7 @@ export async function updateTokenStatus(
 }
 
 export async function autoDisableToken(
-  kv: KVNamespace,
+  kv: KVStore,
   token: string,
   reason: string,
 ): Promise<void> {
@@ -141,7 +143,7 @@ export async function autoDisableToken(
   }
 }
 
-export async function getEnabledTokenStrings(kv: KVNamespace): Promise<string[]> {
+export async function getEnabledTokenStrings(kv: KVStore): Promise<string[]> {
   const tokens = await getTokens(kv);
   return tokens.filter((t) => t.enabled).map((t) => t.token);
 }

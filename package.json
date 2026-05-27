@@ -2,17 +2,24 @@
   "name": "my-proxy-gateway",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p tsconfig.node.json",
+    "start": "node dist/server.js",
+    "dev": "ts-node -P tsconfig.node.json src/server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260523.1",
-    "typescript": "^6.0.3",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
     "wrangler": "^4.94.0"
   }
 }
